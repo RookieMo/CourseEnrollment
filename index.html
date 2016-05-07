@@ -1,0 +1,37 @@
+<!doctype html>
+<html ng-app="tableApp" ng-controller="tableCtrl">
+  <head>
+    <!-- CSS file -->
+    <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="src/css/todo.css">
+
+  </head>
+  <body>
+    <!-- Import scripts -->
+    <script type="text/javascript" src="bower_components/angular/angular.js"></script>
+    <script src="bower_components/angular-ui-router/release/angular-ui-router.min.js"></script>
+    <script src="bower_components/jquery/dist/jquery.min.js"></script>
+    <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <style>div.google-visualization-tooltip { 
+            width: 300px !important;
+            border: none !important;
+            border-radius: 21px !important;
+            position: absolute !important;
+            font-size:  15px !important; }
+    </style>
+
+    <!-- App controller -->
+    <script src="src/js/controller/todo.js"></script>
+    <script src="src/js/controller/table.js"></script>
+    <script src="src/js/route/route.js"></script>
+
+    <!-- some navigation -->
+    <ul class="nav nav-pills">
+    <li role="presentation"><a ui-sref="home">Home</a></li>
+    <li role="presentation"><a ui-sref="changepage">Change Page</a></li>
+  </ul>
+
+    <div ui-view></div>
+  </body>
+</html>

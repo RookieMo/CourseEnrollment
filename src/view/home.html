@@ -1,8 +1,8 @@
-<div class="container">
+<div class="container" ng-controller="tableCtrl">
     <div id="tfheader">
         <form id="tfnewsearch" method="get">
-                <input name="sb" id="sb" type="text">
-                <input type="submit" value="search" class="btn btn-block btn-warning" ng-click="searchID(document.getElementById('sb').value)">
+                <input id="input" type="text" ng-model="courseID">
+                <input type="submit" value="search" class="btn btn-block btn-warning" ng-click="searchID()">
         </form>
     <div class="tfclear"></div>
     </div>

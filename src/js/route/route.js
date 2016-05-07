@@ -8,7 +8,7 @@ angular.module('tableApp')
   $stateProvider
     .state('home', {
       url: "/home",
-      templateUrl: "src/view/home.tmpl"
+      templateUrl: "src/view/home.html"
     })
     .state('changepage', {
       url: "/changepage",

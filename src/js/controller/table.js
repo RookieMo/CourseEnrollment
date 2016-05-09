@@ -1,9 +1,11 @@
-var app = angular.module('tableApp', ['ui.router']);
-var courseName,day,section,type,room,instructor,dateText;
+/*var app = angular.module('tableApp', ['ngRoute']);
+var courseID, courseName,day,section,type,room,instructor,dateText,credit,courseCredit;
 var instructor = '';
 var day = '';
 var time = [0,0,0,0]
-var chart, dataTable, options;
+var chart, dataTable, options, enrollTable, courseTable;
+var numRows = 7;
+var numCourse = 0;
 
 app.controller('tableCtrl', function($scope, $http) {
 
@@ -13,6 +15,10 @@ google.charts.load('current', {'packages':['timeline']});
         var container = document.getElementById('timeline');
         chart = new google.visualization.Timeline(container);
         dataTable = new google.visualization.DataTable();
+        courseTable = new google.visualization.DataTable();
+        enrollTable = new google.visualization.DataTable();
+
+        google.visualization.events.addListener(chart, 'select', myClickHandler);
 
       dataTable.addColumn({ type: 'string', id: 'Day' });
     	dataTable.addColumn({ type: 'string', id: 'Name' });
@@ -28,6 +34,18 @@ google.charts.load('current', {'packages':['timeline']});
     	  [ 'Friday', '','', new Date(0,0,0,21,0,0), new Date(0,0,0,21,0,0) ],
         [ 'Saturday', '','', new Date(0,0,0,21,0,0), new Date(0,0,0,21,0,0) ]]);
 
+      enrollTable.addColumn({ type: 'string', id: 'courseID'});
+      enrollTable.addColumn({ type: 'string', id: 'courseName'});
+      enrollTable.addColumn({ type: 'string', id: 'type'});
+      enrollTable.addColumn({ type: 'string', id: 'section'});
+      enrollTable.addColumn({ type: 'number', id: 'credit'});
+
+      courseTable.addColumn({ type: 'string', id: 'courseID'});
+      courseTable.addColumn({ type: 'string', id: 'courseName'});
+      courseTable.addColumn({ type: 'string', id: 'type'});
+      courseTable.addColumn({ type: 'string', id: 'section'});
+      courseTable.addColumn({ type: 'number', id: 'credit'});
+
     options = {
       height: 1000,
       title: 'Time Table',
@@ -39,33 +57,34 @@ google.charts.load('current', {'packages':['timeline']});
     chart.draw(dataTable, options);
 }
 
-function createTooltip(subjectID, subjectName, section, room, instructor, dateText, type) {
+function createTooltip(courseID, courseName, section, room, instructor, dateText, type, credit) {
   return '<div style="padding:10px 10px 10px 10px;">' +
-      '<b>' + subjectID + ' ' + subjectName + '</b>' +
+      '<b>' + courseID + ' ' + courseName + '</b>' +
       '<p>' + 'Section ' + section + ' Room ' + room + '</p>' +
-      '<p>' + 'Type: ' + type + '</p>' +
+      '<p>' + 'Type: ' + type + ' Credit: ' + credit + '</p>' +
       '<p>' + instructor + '</p>' +
       '<p>' + 'Time: ' + dateText + '</p>' +'</div>';
-}
-
-function getCourseName(){
-  return subjectName;
 }
 
 function getCourseDetail(courseID){
   $http.get('https://whsatku.github.io/skecourses/combined.json')
   .success(function (data) {
-    console.log(data);
+    this.courseID = courseID;
     courseName = data[courseID].name.en;
+    courseCredit = data[courseID].credit;
   })
 
   var link = 'https://whsatku.github.io/skecourses/sections/' + courseID + '.json';
   $http.get(link)
   .success(function (course) {
-    console.log(course);
     for (var i = course.length - 1; i >= 0; i--) {
-      section = course[i].id;
+        section = course[i].id;
         type = course[i].type;
+        if(type == 'Lab'){
+          credit = courseCredit.lab;
+        } else if(type == 'Lecture'){
+          credit = courseCredit.lecture;
+        }
         room = course[i].location;
         if(course[i].instructors.length == 1){
           instructor = course[i].instructors[0]
@@ -77,18 +96,15 @@ function getCourseDetail(courseID){
         day = getDay(course[i].date);
         time = getTime(course[i].date);
         dateText = course[i].date
-        addRow(courseName,section,type,room,instructor,day,time,dateText);
+        addRow(courseID, courseName,section,type,room,instructor,day,time,dateText,credit);
+        courseTable.addRows([[courseID, courseName, type, section, credit]])
     };
-        
   })
-  
-
 }
 
-function addRow(courseName,section,type,room,instructor,day,time,dateText){
-  console.log(section+" "+type+' '+room);
+function addRow(courseID,courseName,section,type,room,instructor,day,time,dateText){
   dataTable.addRows([
-    [ day, courseName, createTooltip($scope.courseID, courseName, section, room, instructor, dateText, type),
+    [ day, courseName, createTooltip(courseID, courseName, section, room, instructor, dateText, type, credit),
     new Date(0,0,0,time[0],time[1],0), new Date(0,0,0,time[2],time[3],0) ],
     [ day, '', '', new Date(0,0,0,time[2],time[3],1), new Date(0,0,0,time[2],time[3],1)],
     [ day, '', '', new Date(0,0,0,time[0],time[1],0), new Date(0,0,0,time[0],time[1],0)]]);
@@ -96,6 +112,7 @@ function addRow(courseName,section,type,room,instructor,day,time,dateText){
 }
 
 $scope.searchID = function(){
+  removeLabel();
   getCourseDetail($scope.courseID);
 }
 
@@ -133,7 +150,6 @@ function getTime(date){
     sm = parseInt(date.substring(7,9));
     eh = parseInt(date.substring(10,12));
     em = parseInt(date.substring(13,15));
-    console.log(sh+' '+ sm+' '+eh+' '+em);
     time[0] = sh;
     time[1] = sm;
     time[2] = eh;
@@ -141,4 +157,57 @@ function getTime(date){
     return time;
   }
 }
-})
+
+function myClickHandler(){
+  var tmp = 0;
+  var selection = chart.getSelection();
+  //console.log(courseTable.getNumberOfRows());
+  //console.log(selection[0].row);
+  if(selection[0].row > numRows){
+    tmp = 2;
+  }
+  //tmp += (numCourse * 3);
+  var tmpID = courseTable.getValue(selection[0].row - numRows - tmp, 0);
+  var tmpName = courseTable.getValue(selection[0].row - numRows - tmp, 1);
+  var tmpType = courseTable.getValue(selection[0].row - numRows - tmp, 2);
+  var tmpSec = courseTable.getValue(selection[0].row - numRows - tmp, 3);
+  var tmpCredit = courseTable.getValue(selection[0].row - numRows - tmp, 4);
+  enroll(tmpID, tmpName, tmpType, tmpSec, tmpCredit);
+
+  alert('You enroll ' + tmpName + ' ' + tmpType);
+}
+
+function removeLabel(){
+  var tmp = 0;
+  var tmp2 = 0;
+  //console.log(dataTable.getNumberOfRows());
+  console.log(courseTable.toJSON());
+  for (var i = 0; i < courseTable.getNumberOfRows(); i++) {
+    for (var j = numCourse - 1; j < enrollTable.getNumberOfRows(); j++) {
+      if(enrollTable.getValue(j,1) != courseTable.getValue(i,1) ||
+         enrollTable.getValue(j,2) != courseTable.getValue(i,2)){
+        if(i >= 1){
+          tmp2 = 2;
+        }
+        dataTable.removeRow(i + numRows + tmp2);
+        dataTable.removeRow(i + numRows + tmp2);
+        dataTable.removeRow(i + numRows + tmp2);
+      } else{
+        tmp+=3;
+      }
+    };
+  };
+  numRows = 7 + (numCourse*3);
+  if(courseTable.getNumberOfRows() >= 1){
+    var rowTable = courseTable.getNumberOfRows();
+    for (var i = 0; i < rowTable; i++) {
+      courseTable.removeRow(0);
+    }
+  }
+}
+
+function enroll(courseID,courseName,type,section,credit){
+  enrollTable.addRows([[courseID, courseName, type, section, credit]]);
+  numCourse++;
+}
+})*/

@@ -1,11 +1,9 @@
 <div class="container" ng-controller="tableCtrl">
-    <div id="tfheader">
-        <form id="tfnewsearch" method="get">
-                <input id="input" type="text" ng-model="courseID">
-                <input type="submit" value="search" class="btn btn-block btn-warning" ng-click="searchID()">
-        </form>
-    <div class="tfclear"></div>
-    </div>
+    <form>
+        <input type="text" placeholder="Course Code" required ng-model="courseID">
+        <input type="button" value="Search" ng-click="searchID()">
+    </form>
+
   <div id="timeline" style="height: 100%; wideth:100%;"></div>
 
 

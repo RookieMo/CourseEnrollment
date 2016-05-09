@@ -1,10 +1,16 @@
 <div class="container" ng-controller="tableCtrl">
+    <div class="alert alert-danger" role="alert" ng-show="error !== ''">
+        <h4>{{error}}</h4>
+    </div>
     <form>
-        <input type="text" placeholder="Course Code" required ng-model="courseID">
-        <input type="button" value="Search" ng-click="searchID()">
+        <input type="text" placeholder="Course Code" ng-model="courseID">
+        <input type="submit" value="Search" ng-click="searchID()">
     </form>
 
   <div id="timeline" style="height: 100%; wideth:100%;"></div>
+  <div id="etable_div"></div>
+  <div id="ctable_div"></div>
+  <div id="ttable_div"></div>
 
 
 <!--  <table style="width:100%;">

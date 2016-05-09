@@ -1,5 +1,5 @@
 var app = angular.module('tableApp',['ngRoute'])
-google.charts.load('current', {'packages':['timeline']});
+google.charts.load('current', {'packages':['timeline', 'table']});
 app.config(function($routeProvider) {
         $routeProvider
 
@@ -31,11 +31,12 @@ app.config(function($routeProvider) {
     });
 
 app.controller('tableCtrl', function($scope, $http) {
+    $scope.error = '';
     var courseID, courseName,day,section,type,room,instructor,dateText,credit,courseCredit;
     var instructor = '';
     var day = '';
     var time = [0,0,0,0]
-    var chart, dataTable, options, enrollTable, courseTable;
+    var chart, dataTable, options, enrollTable, courseTable, etable, ctable, ttable;
     var numRows = 7;
     var numCourse = 0;
 
@@ -43,6 +44,9 @@ app.controller('tableCtrl', function($scope, $http) {
       google.charts.setOnLoadCallback(drawChart);
       function drawChart() {
         var container = document.getElementById('timeline');
+        etable = new google.visualization.Table(document.getElementById('etable_div'));
+        ctable = new google.visualization.Table(document.getElementById('ctable_div'));
+        ttable = new google.visualization.Table(document.getElementById('ttable_div'));
         chart = new google.visualization.Timeline(container);
         dataTable = new google.visualization.DataTable();
         courseTable = new google.visualization.DataTable();
@@ -77,14 +81,18 @@ app.controller('tableCtrl', function($scope, $http) {
       courseTable.addColumn({ type: 'number', id: 'credit'});
 
     options = {
-      height: 1000,
+      height: 500,
       title: 'Time Table',
       timeline: { colorByRowLabel: true },
       backgroundColor: '#ffd',
-      tooltip: { isHtml: true }
+      fontSize: '50',
+      tooltip: { isHtml: true, }
     };
 
     chart.draw(dataTable, options);
+    etable.draw(enrollTable, {showRowNumber: true, width: '100%', height: '100%'});
+    ctable.draw(courseTable, {showRowNumber: true, width: '100%', height: '100%'});
+    ttable.draw(dataTable, {showRowNumber: true, width: '100%', height: '100%'});
 }
 
 function createTooltip(courseID, courseName, section, room, instructor, dateText, type, credit) {
@@ -125,9 +133,26 @@ function getCourseDetail(courseID){
         }
         day = getDay(course[i].date);
         time = getTime(course[i].date);
-        dateText = course[i].date
-        addRow(courseID, courseName,section,type,room,instructor,day,time,dateText,credit);
-        courseTable.addRows([[courseID, courseName, type, section, credit]])
+        dateText = course[i].date;
+        if(enrollTable.getNumberOfRows() == 0){
+          addRow(courseID, courseName,section,type,room,instructor,day,time,dateText,credit);
+          courseTable.addRows([[courseID, courseName, type, section, credit]]);
+          ctable.draw(courseTable, {showRowNumber: true, width: '100%', height: '100%'});
+        } else{
+          var isEnroll = 0;
+          for (var j = 0; j < enrollTable.getNumberOfRows(); j++) {
+            if(enrollTable.getValue(j,1) == courseName &&
+               enrollTable.getValue(j,2) == type){
+                isEnroll = 1;
+                break;
+            }
+          }
+          if(isEnroll == 0){
+              addRow(courseID, courseName,section,type,room,instructor,day,time,dateText,credit);
+                courseTable.addRows([[courseID, courseName, type, section, credit]]);
+                ctable.draw(courseTable, {showRowNumber: true, width: '100%', height: '100%'});
+            }
+        }
     };
   })
 }
@@ -139,11 +164,18 @@ function addRow(courseID,courseName,section,type,room,instructor,day,time,dateTe
     [ day, '', '', new Date(0,0,0,time[2],time[3],1), new Date(0,0,0,time[2],time[3],1)],
     [ day, '', '', new Date(0,0,0,time[0],time[1],0), new Date(0,0,0,time[0],time[1],0)]]);
   chart.draw(dataTable, options);
+  ttable.draw(dataTable, {showRowNumber: true, width: '100%', height: '100%'});
 }
 
 $scope.searchID = function(){
-  removeLabel();
-  getCourseDetail($scope.courseID);
+  $scope.error = '';
+  if($scope.courseID.length != 8){
+    $scope.error = 'Wrong course ID';
+  } else{
+    removeLabel();
+    getCourseDetail($scope.courseID);
+  }
+  
 }
 
 function getDay(date){
@@ -189,21 +221,42 @@ function getTime(date){
 }
 
 function myClickHandler(){
-  var tmp = 0;
   var selection = chart.getSelection();
   if(dataTable.getValue(selection[0].row,1) != ''){
-    if(selection[0].row > numRows){
-        tmp = 2;
-      }
-      //tmp += (numCourse * 3);
-      var tmpID = courseTable.getValue(selection[0].row - numRows - tmp, 0);
-      var tmpName = courseTable.getValue(selection[0].row - numRows - tmp, 1);
-      var tmpType = courseTable.getValue(selection[0].row - numRows - tmp, 2);
-      var tmpSec = courseTable.getValue(selection[0].row - numRows - tmp, 3);
-      var tmpCredit = courseTable.getValue(selection[0].row - numRows - tmp, 4);
-      enroll(tmpID, tmpName, tmpType, tmpSec, tmpCredit);
-      drawChart();
-      alert('You enroll ' + tmpName + ' ' + tmpType);
+    console.log(selection[0].row + ' ' + numRows);
+    
+    var minusRow = 0;
+    var i = 0;
+    while(minusRow <= selection[0].row){
+        if(minusRow==10 || minusRow==13 || minusRow==16 || minusRow==19 || minusRow==22 || 
+            minusRow==25 || minusRow==28 || minusRow==31 || minusRow==33 || minusRow==36){
+          i++;
+        }
+        minusRow++;
+    }
+    var tmpID = courseTable.getValue(i, 0);
+    var tmpName = courseTable.getValue(i, 1);
+    var tmpType = courseTable.getValue(i, 2);
+    var tmpSec = courseTable.getValue(i, 3);
+    var tmpCredit = courseTable.getValue(i, 4);
+    if(enrollTable.getNumberOfRows() == 0){
+        enroll(tmpID, tmpName, tmpType, tmpSec, tmpCredit);
+        alert('You enroll ' + tmpName + ' ' + tmpType);
+    } else{
+      var isEnroll = 0;
+      for (var j = 0; j < enrollTable.getNumberOfRows(); j++) {
+            if(enrollTable.getValue(j,1) == tmpName &&
+               enrollTable.getValue(j,2) == tmpType){
+                isEnroll = 1;
+                alert('Already enroll ' + tmpName + ' ' + tmpType);
+                break;
+            }
+          }
+          if(isEnroll == 0){
+                enroll(tmpID, tmpName, tmpType, tmpSec, tmpCredit);
+                alert('You enroll ' + tmpName + ' ' + tmpType);
+              }
+        }
   }
 }
 
@@ -211,37 +264,40 @@ function removeLabel(){
   var tmp = 0;
   var tmp2 = 0;
   var rowTable = 0;
-  //console.log(dataTable.getNumberOfRows());
-  //console.log(courseTable.toJSON());
   if(enrollTable.getNumberOfRows() == 0 && courseTable.getNumberOfRows() != 0){
     rowTable = dataTable.getNumberOfRows();
     for (var i = numRows; i < rowTable; i++) {
-      console.log(i);
       dataTable.removeRow(numRows);
     }
-  } else{
-    for (var i = 0; i < courseTable.getNumberOfRows(); i++) {
-    for (var j = numCourse - 1; j < enrollTable.getNumberOfRows(); j++) {
-      if(enrollTable.getValue(j,1) != courseTable.getValue(i,1) ||
-         enrollTable.getValue(j,2) != courseTable.getValue(i,2)){
-        if(i >= 1){
-          tmp2 = 2;
-        }
-        dataTable.removeRow(i + numRows + tmp2);
-        dataTable.removeRow(i + numRows + tmp2);
-        dataTable.removeRow(i + numRows + tmp2);
-      } else{
-        tmp+=3;
-      }
-    };
-  };
-  numRows = 7 + (numCourse*3);
-  if(courseTable.getNumberOfRows() >= 1){
     rowTable = courseTable.getNumberOfRows();
     for (var i = 0; i < rowTable; i++) {
       courseTable.removeRow(0);
     }
-  }
+  } else{
+    var isEnroll = 0;
+    for (var i = 0; i < courseTable.getNumberOfRows(); i++) {
+      isEnroll = 0;
+    for (var j = 0; j < enrollTable.getNumberOfRows(); j++) {
+      if(enrollTable.getValue(j,1) == courseTable.getValue(i,1) &&
+         enrollTable.getValue(j,2) == courseTable.getValue(i,2)){
+        console.log(enrollTable.getValue(j,1)+ '   '+courseTable.getValue(i,1));
+        console.log(enrollTable.getValue(j,2)+ '   '+courseTable.getValue(i,2));
+        isEnroll = 1;
+        break;
+      }
+    }
+    console.log(isEnroll);
+    if(isEnroll == 0){
+      if(i >= 1){
+          tmp2 = 2;
+        }
+        dataTable.removeRow(i + numRows + tmp2 - (numCourse*3));
+        dataTable.removeRow(i + numRows + tmp2 - (numCourse*3));
+        dataTable.removeRow(i + numRows + tmp2 - (numCourse*3));
+        courseTable.removeRow(i);
+        console.log('course removed');
+    }
+  };
   }
   
 }
@@ -249,5 +305,7 @@ function removeLabel(){
 function enroll(courseID,courseName,type,section,credit){
   enrollTable.addRows([[courseID, courseName, type, section, credit]]);
   numCourse++;
+  numRows = 7 + (numCourse*3);
+  etable.draw(enrollTable, {showRowNumber: true, width: '100%', height: '100%'});
 }
 });

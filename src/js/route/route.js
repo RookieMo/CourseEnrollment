@@ -1,11 +1,7 @@
 var app = angular.module('tableApp',['ngRoute', 'mgcrea.ngStrap', 'ngAnimate', 'ngSanitize'])
 google.charts.load('current', {'packages':['timeline', 'table']});
 
-app.config(function($modalProvider) {
-  angular.extend($modalProvider.defaults, {
-    html: true
-  });
-})
+
 
 app.config(function($routeProvider) {
         $routeProvider
@@ -15,22 +11,11 @@ app.config(function($routeProvider) {
                 templateUrl : 'src/view/home.html',
                 controller  : 'tableCtrl'
             })
-
-            // route for the about page
-            .when('/about', {
-                templateUrl : 'src/view/about.html',
-                controller  : 'aboutController'
-            })
-
-            // route for the contact page
-            .when('/contact', {
-                templateUrl : 'src/view/contact.html',
-                controller  : 'contactController'
-            });
     });
 
 app.controller('tableCtrl', function($scope, $http, $modal) {
-    $("#login-modal").modal();
+    $("#login-modal").modal({backdrop: 'static', keyboard: false});
+    
     $scope.username = '';
     $scope.courses = ["01219113 Object-Oriented Programming II",
       "01219215 Computer System Laboratory",
@@ -67,8 +52,8 @@ app.controller('tableCtrl', function($scope, $http, $modal) {
       function drawChart() {
         var container = document.getElementById('timeline');
         etable = new google.visualization.Table(document.getElementById('etable_div'));
-        ctable = new google.visualization.Table(document.getElementById('ctable_div'));
-        ttable = new google.visualization.Table(document.getElementById('ttable_div'));
+        //ctable = new google.visualization.Table(document.getElementById('ctable_div'));
+        //ttable = new google.visualization.Table(document.getElementById('ttable_div'));
         chart = new google.visualization.Timeline(container);
         dataTable = new google.visualization.DataTable();
         courseTable = new google.visualization.DataTable();
@@ -103,7 +88,7 @@ app.controller('tableCtrl', function($scope, $http, $modal) {
       courseTable.addColumn('number', 'Credit');
 
     options = {
-      height: 500,
+      height: 450,
       title: 'Time Table',
       timeline: { colorByRowLabel: true },
       backgroundColor: '#ffd',
@@ -113,8 +98,8 @@ app.controller('tableCtrl', function($scope, $http, $modal) {
 
     chart.draw(dataTable, options);
     etable.draw(enrollTable, {showRowNumber: true, width: '100%', height: '100%'});
-    ctable.draw(courseTable, {showRowNumber: true, width: '100%', height: '100%'});
-    ttable.draw(dataTable, {showRowNumber: true, width: '100%', height: '100%'});
+    //ctable.draw(courseTable, {showRowNumber: true, width: '100%', height: '100%'});
+    //ttable.draw(dataTable, {showRowNumber: true, width: '100%', height: '100%'});
 }
 
 function createTooltip(courseID, courseName, section, room, instructor, dateText, type, credit) {
@@ -159,7 +144,7 @@ function getCourseDetail(courseID){
         if(enrollTable.getNumberOfRows() == 0){
           addRow(courseID, courseName,section,type,room,instructor,day,time,dateText,credit);
           courseTable.addRows([[courseID, courseName, type, section, credit]]);
-          ctable.draw(courseTable, {showRowNumber: true, width: '100%', height: '100%'});
+          //ctable.draw(courseTable, {showRowNumber: true, width: '100%', height: '100%'});
         } else{
           var isEnroll = 0;
           for (var j = 0; j < enrollTable.getNumberOfRows(); j++) {
@@ -171,7 +156,7 @@ function getCourseDetail(courseID){
           if(isEnroll == 0){
               addRow(courseID, courseName,section,type,room,instructor,day,time,dateText,credit);
                 courseTable.addRows([[courseID, courseName, type, section, credit]]);
-                ctable.draw(courseTable, {showRowNumber: true, width: '100%', height: '100%'});
+                //ctable.draw(courseTable, {showRowNumber: true, width: '100%', height: '100%'});
             }
         }
     };
@@ -185,7 +170,7 @@ function addRow(courseID,courseName,section,type,room,instructor,day,time,dateTe
     [ day, '', '', new Date(0,0,0,time[2],time[3],1), new Date(0,0,0,time[2],time[3],1)],
     [ day, '', '', new Date(0,0,0,time[0],time[1],0), new Date(0,0,0,time[0],time[1],0)]]);
   chart.draw(dataTable, options);
-  ttable.draw(dataTable, {showRowNumber: true, width: '100%', height: '100%'});
+  //ttable.draw(dataTable, {showRowNumber: true, width: '100%', height: '100%'});
 }
 
 $scope.searchID = function(){
@@ -280,7 +265,7 @@ function myClickHandler(){
           }
           if(isEnroll == 0){
                 enroll(tmpID, tmpName, tmpType, tmpSec, tmpCredit);
-                alert('You enroll ' + tmpName + ' ' + tmpType);
+                //alert('You enroll ' + tmpName + ' ' + tmpType);
               }
     }
   }

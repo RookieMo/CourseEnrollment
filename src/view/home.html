@@ -5,13 +5,13 @@
                 <div class="loginmodal-container">
                     <h1>Login to Your Account</h1><br>
                   <form data-toggle="validator" role="form">
-                    <div class="form-group">
-                    <input type="text" class="form-control" name="user" placeholder="Student ID" ng-model="username" required></div>
-                    <div class="form-group">
-                    <input type="password" class="form-control" name="pass" placeholder="Password" required></div>
-                    <div class="form-group">
-                    <input type="submit" class="form-control" name="login" class="login loginmodal-submit" value="Login" data-dismiss="modal">
-                    </div>
+                    <input type="text" name="user" data-minlength="6" class="form-control" placeholder="Student ID" ng-model="username">
+                    <div class="help-block">Must be 9 number</div>
+                    <input type="password" name="pass" class="form-control" placeholder="Password">
+                    <div>
+                                <h5>Any password</h5>
+                            </div>
+                    <input type="submit" name="login" class="login loginmodal-submit" value="Login" data-dismiss="modal">
                   </form>
                     
                 </div>
@@ -30,7 +30,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-danger" ng-click="drop()">Drop</button>
-        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-default" data-dismiss="modal" >Close</button>
       </div>
     </div>
   </div>
@@ -38,6 +38,14 @@
 
     <div class="page-header text-center">
         <h3>Registration</h3>
+    </div>
+
+    <div>
+        <h4>How to use</h4>
+        <h4>1. Input you course ID you want to see in search box. Enrolled Course will show in table below</h4>
+        <h4>2. Click on course label that you want to enroll</h4>
+        <h4>3. If you want to drop the course just click that course label</h4>
+        <h4>4. Export to JSON file by click button below the table</h4>
     </div>
 
     <center>
@@ -56,7 +64,5 @@
   <div id="timeline" style="height: 100%; wideth:100%;"></div>
   <div id="etable_div"></div>
   <button type="button" class="btn btn-default" ng-click="exportJSON()">Export to JSON</button>
-  <div id="ctable_div"></div>
-  <div id="ttable_div"></div>
 
 </div>

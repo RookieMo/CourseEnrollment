@@ -1,5 +1,12 @@
-var app = angular.module('tableApp',['ngRoute'])
+var app = angular.module('tableApp',['ngRoute', 'mgcrea.ngStrap', 'ngAnimate', 'ngSanitize'])
 google.charts.load('current', {'packages':['timeline', 'table']});
+
+app.config(function($modalProvider) {
+  angular.extend($modalProvider.defaults, {
+    html: true
+  });
+})
+
 app.config(function($routeProvider) {
         $routeProvider
 
@@ -22,15 +29,30 @@ app.config(function($routeProvider) {
             });
     });
 
-    app.controller('aboutController', function($scope) {
-        $scope.message = 'Look! I am an about page.';
-    });
-
-    app.controller('contactController', function($scope) {
-        $scope.message = 'Contact us! JK. This is just a demo.';
-    });
-
-app.controller('tableCtrl', function($scope, $http) {
+app.controller('tableCtrl', function($scope, $http, $modal) {
+    $("#login-modal").modal();
+    $scope.username = '';
+    $scope.courses = ["01219113 Object-Oriented Programming II",
+      "01219215 Computer System Laboratory",
+      "01219216 Operating Systems for Software and Knowledge Engineers",
+      "01219243 Software Specification and Design",
+      "01219244 Software Specification and Design Laboratory",
+      "01219245 Individual Software Development Process",
+      "01219246 Individual Software Development Process Laboratory",
+      "01219343 Software Testing",
+      "01219344 Mobile Software Development",
+      "01219347 Workgroup Software Development Process",
+      "01219348 Workgroup Software Development Process Laboratory",
+      "01219351 Web Application Development",
+      "01219361 Business Intelligence",
+      "01219412 Technical Writing for Software and Knowledge Engineers",
+      "01219448 Software Patterns and Architecture Laboratory",
+      "01219449 Software Patterns and Architecture",
+      "01219492 Software Entrepreneurship",
+      "01219496 Selected Topics in Software and Knowledge Engineering",
+      "01219497 Seminar",
+      "01219498 Special Problems",
+      "01219499 Innovative Software Group Project"];
     $scope.error = '';
     var courseID, courseName,day,section,type,room,instructor,dateText,credit,courseCredit;
     var instructor = '';
@@ -68,17 +90,17 @@ app.controller('tableCtrl', function($scope, $http) {
         [ 'Friday', '','', new Date(0,0,0,21,0,0), new Date(0,0,0,21,0,0) ],
         [ 'Saturday', '','', new Date(0,0,0,21,0,0), new Date(0,0,0,21,0,0) ]]);
 
-      enrollTable.addColumn({ type: 'string', id: 'courseID'});
-      enrollTable.addColumn({ type: 'string', id: 'courseName'});
-      enrollTable.addColumn({ type: 'string', id: 'type'});
-      enrollTable.addColumn({ type: 'string', id: 'section'});
-      enrollTable.addColumn({ type: 'number', id: 'credit'});
+      enrollTable.addColumn('string', 'Course ID');
+      enrollTable.addColumn('string', 'Course Name');
+      enrollTable.addColumn('string', 'Type');
+      enrollTable.addColumn('string', 'Section');
+      enrollTable.addColumn('number', 'Credit');
 
-      courseTable.addColumn({ type: 'string', id: 'courseID'});
-      courseTable.addColumn({ type: 'string', id: 'courseName'});
-      courseTable.addColumn({ type: 'string', id: 'type'});
-      courseTable.addColumn({ type: 'string', id: 'section'});
-      courseTable.addColumn({ type: 'number', id: 'credit'});
+      courseTable.addColumn('string', 'Course ID');
+      courseTable.addColumn('string', 'Course Name');
+      courseTable.addColumn('string', 'Type');
+      courseTable.addColumn('string', 'Section');
+      courseTable.addColumn('number', 'Credit');
 
     options = {
       height: 500,
@@ -144,7 +166,6 @@ function getCourseDetail(courseID){
             if(enrollTable.getValue(j,1) == courseName &&
                enrollTable.getValue(j,2) == type){
                 isEnroll = 1;
-                break;
             }
           }
           if(isEnroll == 0){
@@ -169,11 +190,12 @@ function addRow(courseID,courseName,section,type,room,instructor,day,time,dateTe
 
 $scope.searchID = function(){
   $scope.error = '';
-  if($scope.courseID.length != 8){
+  if($scope.courseID.length < 8){
     $scope.error = 'Wrong course ID';
-  } else{
+  } else {
+    courseID = $scope.courseID.substring(0,8);
     removeLabel();
-    getCourseDetail($scope.courseID);
+    getCourseDetail(courseID);
   }
   
 }
@@ -239,6 +261,7 @@ function myClickHandler(){
     var tmpType = courseTable.getValue(i, 2);
     var tmpSec = courseTable.getValue(i, 3);
     var tmpCredit = courseTable.getValue(i, 4);
+    $scope.dropName = tmpID + ' ' + tmpName + ' ' + tmpType;
     if(enrollTable.getNumberOfRows() == 0){
         enroll(tmpID, tmpName, tmpType, tmpSec, tmpCredit);
         alert('You enroll ' + tmpName + ' ' + tmpType);
@@ -248,15 +271,18 @@ function myClickHandler(){
             if(enrollTable.getValue(j,1) == tmpName &&
                enrollTable.getValue(j,2) == tmpType){
                 isEnroll = 1;
-                alert('Already enroll ' + tmpName + ' ' + tmpType);
-                break;
-            }
+              if(enrollTable.getNumberOfRows() == 1){ i = 0 }
+                //alert('Drop course ' + tmpName + ' ' + tmpType);
+                $scope.dropRow = i;
+                $("#myModal").modal();
+                //$scope.drop(i-1);
+              }
           }
           if(isEnroll == 0){
                 enroll(tmpID, tmpName, tmpType, tmpSec, tmpCredit);
                 alert('You enroll ' + tmpName + ' ' + tmpType);
               }
-        }
+    }
   }
 }
 
@@ -280,16 +306,15 @@ function removeLabel(){
     for (var j = 0; j < enrollTable.getNumberOfRows(); j++) {
       if(enrollTable.getValue(j,1) == courseTable.getValue(i,1) &&
          enrollTable.getValue(j,2) == courseTable.getValue(i,2)){
-        console.log(enrollTable.getValue(j,1)+ '   '+courseTable.getValue(i,1));
-        console.log(enrollTable.getValue(j,2)+ '   '+courseTable.getValue(i,2));
         isEnroll = 1;
-        break;
       }
     }
     console.log(isEnroll);
     if(isEnroll == 0){
+      console.log(enrollTable.getValue(j-1,1)+ '   '+courseTable.getValue(i,1));
+      console.log(enrollTable.getValue(j-1,2)+ '   '+courseTable.getValue(i,2));
       if(i >= 1){
-          tmp2 = 2;
+          tmp2 = tmp2*i;
         }
         dataTable.removeRow(i + numRows + tmp2 - (numCourse*3));
         dataTable.removeRow(i + numRows + tmp2 - (numCourse*3));
@@ -299,6 +324,14 @@ function removeLabel(){
     }
   };
   }
+  /*if(courseTable.getNumberOfRows() > enrollTable.getNumberOfRows()){
+    var isEnroll = 0;
+    rowTable = courseTable.getNumberOfRows();
+    for (var i = enrollTable.getNumberOfRows(); i < rowTable; i++) {
+
+      courseTable.removeRow(rowTable);
+    }
+  }*/
   
 }
 
@@ -308,4 +341,46 @@ function enroll(courseID,courseName,type,section,credit){
   numRows = 7 + (numCourse*3);
   etable.draw(enrollTable, {showRowNumber: true, width: '100%', height: '100%'});
 }
+
+$scope.drop = function(){
+  $("#myModal").modal("hide");
+  enrollTable.removeRow($scope.dropRow);
+  numCourse--;
+  numRows = 7 + (numCourse*3);
+  etable.draw(enrollTable, {showRowNumber: true, width: '100%', height: '100%'});
+}
+
+$scope.exportJSON = function(){
+  $scope.saveToPc(enrollTable.toJSON());
+}
+
+$scope.saveToPc = function (data) {
+
+  if (!data) {
+    console.error('No data');
+    return;
+  }
+  
+
+  if (typeof data === 'object') {
+    data = JSON.stringify(data, undefined, 2);
+  }
+
+  var blob = new Blob([data], {type: 'text/json'}),
+    e = document.createEvent('MouseEvents'),
+    a = document.createElement('a');
+
+  a.download = 'download.json';
+  a.href = window.URL.createObjectURL(blob);
+  a.dataset.downloadurl = ['text/json', a.download, a.href].join(':');
+  e.initEvent('click', true, false, window,
+      0, 0, 0, 0, 0, false, false, false, false, 0, null);
+  a.dispatchEvent(e);
+};
 });
+function SelectAll(id)
+{
+    document.getElementById(id).focus();
+    document.getElementById(id).select();
+}
+

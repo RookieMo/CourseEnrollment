@@ -4,14 +4,20 @@
     <!-- CSS file -->
     <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="src/css/todo.css">
-  
+    <link rel="stylesheet" href="bower_components/angular-motion/dist/angular-motion.min.css">
+
     <!-- Import scripts -->
     <script type="text/javascript" src="bower_components/angular/angular.js"></script>
     <script src="bower_components/angular-ui-router/release/angular-ui-router.min.js"></script>
     <script src="bower_components/jquery/dist/jquery.min.js"></script>
     <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-    
+
+    <script src="bower_components/angular-strap/dist/angular-strap.min.js"></script>
+    <script src="bower_components/angular-strap/dist/angular-strap.tpl.min.js"></script>
+    <script src="//cdn.jsdelivr.net/angularjs/1.5.5/angular-animate.min.js" data-semver="1.5.5"></script>
+    <script src="//cdn.jsdelivr.net/angularjs/1.5.5/angular-sanitize.min.js" data-semver="1.5.5"></script>
+
 
     <style>div.google-visualization-tooltip { 
             width: 300px !important;
@@ -20,41 +26,12 @@
             position: absolute !important;
             font-size:  15px !important; }
     </style>
-
     
     <!-- App controller -->
-    <script src="src/js/controller/table.js"></script>
+    <!-- <script src="src/js/controller/table.js"></script> -->
     <script src="src/js/route/route.js"></script>
-    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.25/angular-route.js"></script>
 
-    <script>
-  $(function() {
-    var availableTags = [
-      "01219113",
-      "01219215",
-      "01219216",
-      "01219243",
-      "01219244",
-      "01219245",
-      "01219246",
-      "01219343",
-      "01219344",
-      "01219347",
-      "01219348",
-      "01219351",
-      "01219361",
-      "01219412",
-      "01219448",
-      "01219449",
-      "01219452",
-      "01219492",
-      "01219496",
-      "01219497",
-      "01219498",
-      "01219499"
-    ];
-  });
-  </script>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.25/angular-route.js"></script>
 
     </head>
     <body>
@@ -63,13 +40,12 @@
             <nav class="navbar navbar-default">
             <div class="container">
                 <div class="navbar-header">
-                    <a class="navbar-brand" href="/home">Kasetsart University</a>
+                    <a class="navbar-brand">Kasetsart University</a>
                 </div>
 
                 <ul class="nav navbar-nav navbar-right">
-                    <li><a href="#home"><i class="fa fa-home"></i>Registration</a></li>
-                    <li><a href="#about"><i class="fa fa-shield"></i> About</a></li>
-                    <li><a href="#contact"><i class="fa fa-comment"></i> Logout</a></li>
+                    <li><a><i class="fa fa-home"></i></a></li>
+                    <li><a data-toggle="modal" data-target="#login-modal"><i class="fa fa-comment"></i>Logout</a></li>
                 </ul>
             </div>
             </nav>
@@ -77,11 +53,11 @@
 
         <!-- MAIN CONTENT AND INJECTED VIEWS -->
         <div id="main">
-            {{ message }}
-
             <!-- angular templating -->
             <!-- this is where content will be injected -->
-            <div ng-view></div>
+            <div ng-view>
+
+            </div>
 
         </div>
 

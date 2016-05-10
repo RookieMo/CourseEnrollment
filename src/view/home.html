@@ -1,155 +1,62 @@
 <div class="container" ng-controller="tableCtrl">
-    <div class="alert alert-danger" role="alert" ng-show="error !== ''">
-        <h4>{{error}}</h4>
+
+<div class="modal fade" id="login-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+          <div class="modal-dialog">
+                <div class="loginmodal-container">
+                    <h1>Login to Your Account</h1><br>
+                  <form data-toggle="validator" role="form">
+                    <div class="form-group">
+                    <input type="text" class="form-control" name="user" placeholder="Student ID" ng-model="username" required></div>
+                    <div class="form-group">
+                    <input type="password" class="form-control" name="pass" placeholder="Password" required></div>
+                    <div class="form-group">
+                    <input type="submit" class="form-control" name="login" class="login loginmodal-submit" value="Login" data-dismiss="modal">
+                    </div>
+                  </form>
+                    
+                </div>
+            </div>
+          </div>
+
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title" id="myModalLabel">Drop from this section?</h4>
+      </div>
+      <div class="modal-body">
+        {{dropName}}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" ng-click="drop()">Drop</button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
     </div>
-    <form>
-        <input type="text" placeholder="Course Code" ng-model="courseID">
-        <input type="submit" value="Search" ng-click="searchID()">
+  </div>
+</div>
+
+    <div class="page-header text-center">
+        <h3>Registration</h3>
+    </div>
+
+    <center>
+    <form class="form-inline" role="form">
+    <div class="form-group">
+    <label><i class="fa fa-globe"></i> Course ID: </label>
+    <input id="text" type="text" class="form-control" ng-model="courseID" bs-options="course for course in courses" placeholder="Enter Course Id" onClick="SelectAll('text');" bs-typeahead>
+    <input type="submit" value="Search" ng-click="searchID()">
+    </div>
     </form>
+    <div class="alert alert-danger" role="alert" ng-show="error !== ''">
+        <center><h4>{{error}}</h4></center>
+    </div>
+    </center>
 
   <div id="timeline" style="height: 100%; wideth:100%;"></div>
   <div id="etable_div"></div>
+  <button type="button" class="btn btn-default" ng-click="exportJSON()">Export to JSON</button>
   <div id="ctable_div"></div>
   <div id="ttable_div"></div>
 
-
-<!--  <table style="width:100%;">
-  <caption>Time Table</caption>
-  <tr>
-    <th></th>
-    <th>07:00 - 08:00</th>
-    <th>08:00 - 09:00</th>
-    <th>09:00 - 10:00</th>
-    <th>10:00 - 11:00</th>
-    <th>11:00 - 12:00</th>
-    <th>12:00 - 13:00</th>
-    <th>13:00 - 14:00</th>
-    <th>14:00 - 15:00</th>
-    <th>15:00 - 16:00</th>
-    <th>16:00 - 17:00</th>
-    <th>17:00 - 18:00</th>
-    <th>18:00 - 19:00</th>
-    <th>19:00 - 20:00</th>
-    <th>20:00 - 21:00</th>
-  </tr>
-  <tr>
-    <th>Sunday</th>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-  </tr>
-  <tr>
-    <th>Monday</th>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-  </tr>
-  <tr>
-    <th>Tuesday</th>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-  </tr>
-  <tr>
-    <th>Wednesday</th>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-  </tr>
-  <tr>
-    <th>Thursday</th>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-  </tr>
-  <tr>
-    <th>Friday</th>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-  </tr>
-  <tr>
-    <th>Saturday</th>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-  </tr>
-</table>  -->
 </div>
